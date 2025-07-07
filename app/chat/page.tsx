@@ -2,7 +2,15 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  getDocs,
+  where,
+  orderBy,
+} from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Button } from "@/components/ui/button";
@@ -39,13 +47,14 @@ import {
   Code,
   Github,
 } from "lucide-react";
+import { set } from "date-fns";
 
 interface Message {
-  id: string;
-  role: "user" | "assistant";
+  id: string | number;
+  role: string;
   content: string;
   timestamp?: Date;
-  uid: string; // Optional user ID for tracking
+  uid: string;
 }
 
 export default function ChatPage() {
@@ -68,14 +77,37 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    const getUserID = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        setUserID(user.uid);
+    const fetchMessages = async () => {
+      if (isAuthenticated && userID) {
+        try {
+          console.log("Fetching messages for user:", userID);
+          const q = query(
+            collection(db, "Messages"),
+            where("uid", "==", userID),
+            orderBy("timestamp")
+          );
+
+          const snapshot = await getDocs(q);
+          console.log("Found", snapshot.docs.length, "messages");
+
+          const msg: Message[] = snapshot.docs.map((doc: any) => ({
+            id: doc.id,
+            role: doc.data().role,
+            content: doc.data().content,
+            timestamp: doc.data().timestamp,
+            uid: doc.data().uid,
+          }));
+
+          setMessages(msg);
+          console.log("Messages loaded:", msg);
+        } catch (error) {
+          console.error("Error fetching messages:", error);
+        }
       }
     };
-    getUserID();
-  }, []);
+
+    fetchMessages();
+  }, [isAuthenticated, userID]);
 
   // Custom submit handler
   const handleSubmit = async (e: any) => {
@@ -145,8 +177,24 @@ export default function ChatPage() {
         timestamp: new Date(),
         uid: currentUserID,
       };
-
+      setIsLoading(false);
       setMessages((prev) => [...prev, aiMessage]);
+
+      await addDoc(collection(db, "Messages"), {
+        role: "user",
+        content: currentInput,
+        timestamp: serverTimestamp(),
+        uid: currentUserID,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      await addDoc(collection(db, "Messages"), {
+        role: "assistant",
+        content: botResponse,
+        timestamp: serverTimestamp(),
+        uid: currentUserID,
+      });
     } catch (error) {
       console.error("Error:", error);
 
