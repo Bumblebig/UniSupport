@@ -18,14 +18,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { Link, useNavigate } from "react-router-dom";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   AuthErrorCodes,
 } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
-import { auth, db } from "@/app/firebase"; // Adjust the import path as necessary
+import { auth, db } from "@/app/firebase";
 import {
   GraduationCap,
   Users,
@@ -40,6 +39,8 @@ import {
   CreditCard,
   Code,
   Coffee,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -53,6 +54,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const router = useRouter();
 
   const getFirebaseErrorMessage = (code: any) => {
@@ -161,163 +163,189 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Remove the Head component */}
-      {/* <Head>
-        <title>UniSupport AI</title>
-        <meta name="description" content="This is the login page" />
-      </Head> */}
-      
-      {/* Header */}
+      {/* Mobile-Optimized Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-2.5 rounded-xl shadow-lg">
-                <GraduationCap className="h-7 w-7 text-white" />
+            {/* Logo Section */}
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-2 sm:p-2.5 rounded-xl shadow-lg">
+                <GraduationCap className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-800">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-800">
                   UniSupport AI
                 </h1>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600 hidden sm:block">
                   Community-Driven Academic Assistant
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-6 text-sm text-slate-600">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-6 text-sm text-slate-600">
               <div className="flex items-center gap-2">
                 <Heart className="h-4 w-4 text-red-500" />
                 <span>Made by Students</span>
               </div>
               <a href="https://github.com/Bumblebig/UniSupport" target="_blank">
-                <div className="flex items-center gap-2 cursor-pointer">
+                <div className="flex items-center gap-2 cursor-pointer hover:text-slate-900 transition-colors">
                   <Github className="h-4 w-4" />
                   <span>Open Source</span>
                 </div>
               </a>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="md:hidden p-2 text-slate-600 hover:text-slate-900"
+            >
+              {showMobileMenu ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
           </div>
+
+          {/* Mobile Navigation Menu */}
+          {showMobileMenu && (
+            <div className="md:hidden mt-4 pt-4 border-t border-slate-200">
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Heart className="h-4 w-4 text-red-500" />
+                  <span>Made by Students</span>
+                </div>
+                <a
+                  href="https://github.com/Bumblebig/UniSupport"
+                  target="_blank"
+                >
+                  <div className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
+                    <Github className="h-4 w-4" />
+                    <span>Open Source</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left side - Information */}
-          <div className="space-y-8">
-            <div className="space-y-4">
-              {/* <div className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1.5 rounded-full text-sm font-medium">
-                <Code className="h-4 w-4" />
-                Final Year Project
-              </div> */}
-              <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start lg:items-center">
+          {/* Left side - Information (Mobile: Shows after form) */}
+          <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
+            <div className="space-y-3 sm:space-y-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-900 leading-tight">
                 AI Support Assistant
                 <span className="block text-indigo-600">
                   for Fellow Students
                 </span>
               </h1>
-              <p className="text-xl text-slate-600 leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed">
                 A community-driven platform created by a Unilorin student, for
                 Unilorin students. Get instant help with academic IT issues,
-                portal problems, and technical questions - no official
-                affiliation, just peer support.
+                portal problems, and technical questions.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60">
-                <div className="bg-blue-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <UserCheck className="h-6 w-6 text-blue-600" />
+            {/* Features Grid - Mobile: 1 column, Tablet: 2 columns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/60">
+                <div className="bg-blue-100 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                  <UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">
+                <h3 className="font-semibold text-slate-900 mb-1 sm:mb-2 text-sm sm:text-base">
                   Portal Issues
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600">
                   Login problems, password resets, access difficulties
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60">
-                <div className="bg-green-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <BookOpen className="h-6 w-6 text-green-600" />
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/60">
+                <div className="bg-green-100 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                  <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">
+                <h3 className="font-semibold text-slate-900 mb-1 sm:mb-2 text-sm sm:text-base">
                   Academic Help
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600">
                   Course registration, academic systems guidance
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60">
-                <div className="bg-purple-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <CreditCard className="h-6 w-6 text-purple-600" />
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/60">
+                <div className="bg-purple-100 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">
+                <h3 className="font-semibold text-slate-900 mb-1 sm:mb-2 text-sm sm:text-base">
                   Payment Support
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600">
                   School fees, payment issues, receipt problems
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/60">
-                <div className="bg-orange-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <HeadphonesIcon className="h-6 w-6 text-orange-600" />
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/60">
+                <div className="bg-orange-100 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                  <HeadphonesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">
+                <h3 className="font-semibold text-slate-900 mb-1 sm:mb-2 text-sm sm:text-base">
                   24/7 Available
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600">
                   Always here when you need help
                 </p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200/60">
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <Coffee className="h-5 w-5 text-indigo-600" />
+            {/* About Project - Hidden on very small screens */}
+            <div className="hidden sm:block bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-indigo-200/60">
+              <h3 className="font-semibold text-slate-900 mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
+                <Coffee className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
                 About This Project
               </h3>
-              <div className="space-y-2 text-sm text-slate-700">
+              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-slate-700">
                 <p>• Created as a final year project to help fellow students</p>
                 <p>• Not affiliated with the University of Ilorin or COMSIT</p>
                 <p>• Open-source community tool for peer-to-peer support</p>
-                <p>
-                  • Designed to complement (not replace) official support
-                  channels
-                </p>
+                <p>• Designed to complement official support channels</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-8 pt-4">
+            {/* Features - Mobile: Stack vertically */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 pt-2 sm:pt-4">
               <div className="flex items-center gap-2 text-slate-600">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span className="text-sm">Free to Use</span>
+                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                <span className="text-xs sm:text-sm">Free to Use</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span className="text-sm">Student Made</span>
+                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                <span className="text-xs sm:text-sm">Student Made</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span className="text-sm">Community Driven</span>
+                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                <span className="text-xs sm:text-sm">Community Driven</span>
               </div>
             </div>
           </div>
 
-          {/* Right side - Login/Signup form */}
-          <div className="lg:pl-8">
+          {/* Right side - Login/Signup form (Mobile: Shows first) */}
+          <div className="order-1 lg:order-2 lg:pl-8">
             <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-xl">
-              <CardHeader className="text-center pb-6">
-                <div className="flex justify-center mb-4">
-                  <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-4 rounded-2xl shadow-lg">
-                    <Users className="h-8 w-8 text-white" />
+              <CardHeader className="text-center pb-4 sm:pb-6">
+                <div className="flex justify-center mb-3 sm:mb-4">
+                  <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg">
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-2xl font-bold text-slate-900">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900">
                   Join the Community
                 </CardTitle>
-                <CardDescription className="text-slate-600 text-base">
+                <CardDescription className="text-slate-600 text-sm sm:text-base">
                   Sign in or create an account to access the AI support
                   assistant
                 </CardDescription>
@@ -328,18 +356,22 @@ export default function LoginPage() {
                 onValueChange={setActiveTab}
                 className="w-full"
               >
-                <TabsList className="grid grid-cols-2 mx-6 mb-6">
-                  <TabsTrigger value="login">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Create Account</TabsTrigger>
+                <TabsList className="grid grid-cols-2 mx-4 sm:mx-6 mb-4 sm:mb-6">
+                  <TabsTrigger value="login" className="text-sm">
+                    Sign In
+                  </TabsTrigger>
+                  <TabsTrigger value="signup" className="text-sm">
+                    Create Account
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="login">
                   <form onSubmit={handleLogin}>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-2">
+                    <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+                      <div className="space-y-1 sm:space-y-2">
                         <Label
                           htmlFor="email"
-                          className="text-slate-700 font-medium"
+                          className="text-slate-700 font-medium text-sm"
                         >
                           Email Address
                         </Label>
@@ -354,15 +386,15 @@ export default function LoginPage() {
                             })
                           }
                           placeholder="Enter your email"
-                          className="h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
                           required
                         />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-1 sm:space-y-2">
                         <Label
                           htmlFor="password"
-                          className="text-slate-700 font-medium"
+                          className="text-slate-700 font-medium text-sm"
                         >
                           Password
                         </Label>
@@ -377,7 +409,7 @@ export default function LoginPage() {
                             })
                           }
                           placeholder="Enter your password"
-                          className="h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
                           required
                         />
                       </div>
@@ -387,51 +419,28 @@ export default function LoginPage() {
                           variant="destructive"
                           className="bg-red-50 border-red-200 text-red-800"
                         >
-                          <AlertDescription>{error}</AlertDescription>
+                          <AlertDescription className="text-sm">
+                            {error}
+                          </AlertDescription>
                         </Alert>
                       )}
-
-                      {/* <Separator />
-
-                      <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Zap className="h-4 w-4 text-indigo-600" />
-                          <span className="text-sm font-medium text-indigo-900">
-                            Demo Account (For Testing)
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 text-sm">
-                          <div>
-                            <span className="text-slate-600">Email:</span>
-                            <div className="font-mono bg-white px-2 py-1 rounded border mt-1">
-                              demo@student.com
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-slate-600">Password:</span>
-                            <div className="font-mono bg-white px-2 py-1 rounded border mt-1">
-                              demo123
-                            </div>
-                          </div>
-                        </div>
-                      </div> */}
                     </CardContent>
 
-                    <CardFooter className="pt-2">
+                    <CardFooter className="pt-2 px-4 sm:px-6">
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold shadow-lg transition-all duration-200"
+                        className="w-full h-10 sm:h-12 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold shadow-lg transition-all duration-200 text-sm"
                         disabled={isLoading}
                       >
                         {isLoading ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                             Signing In...
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
                             Sign In
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                           </div>
                         )}
                       </Button>
@@ -441,11 +450,11 @@ export default function LoginPage() {
 
                 <TabsContent value="signup">
                   <form onSubmit={handleSignup}>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-2">
+                    <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+                      <div className="space-y-1 sm:space-y-2">
                         <Label
                           htmlFor="name"
-                          className="text-slate-700 font-medium"
+                          className="text-slate-700 font-medium text-sm"
                         >
                           Full Name
                         </Label>
@@ -460,15 +469,15 @@ export default function LoginPage() {
                             })
                           }
                           placeholder="Enter your full name"
-                          className="h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
                           required
                         />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-1 sm:space-y-2">
                         <Label
                           htmlFor="signup-email"
-                          className="text-slate-700 font-medium"
+                          className="text-slate-700 font-medium text-sm"
                         >
                           Email Address
                         </Label>
@@ -483,15 +492,15 @@ export default function LoginPage() {
                             })
                           }
                           placeholder="Enter your email"
-                          className="h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
                           required
                         />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-1 sm:space-y-2">
                         <Label
                           htmlFor="signup-password"
-                          className="text-slate-700 font-medium"
+                          className="text-slate-700 font-medium text-sm"
                         >
                           Password
                         </Label>
@@ -506,15 +515,15 @@ export default function LoginPage() {
                             })
                           }
                           placeholder="Create a password"
-                          className="h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
                           required
                         />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-1 sm:space-y-2">
                         <Label
                           htmlFor="confirm-password"
-                          className="text-slate-700 font-medium"
+                          className="text-slate-700 font-medium text-sm"
                         >
                           Confirm Password
                         </Label>
@@ -529,7 +538,7 @@ export default function LoginPage() {
                             })
                           }
                           placeholder="Confirm your password"
-                          className="h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
                           required
                         />
                       </div>
@@ -539,11 +548,13 @@ export default function LoginPage() {
                           variant="destructive"
                           className="bg-red-50 border-red-200 text-red-800"
                         >
-                          <AlertDescription>{error}</AlertDescription>
+                          <AlertDescription className="text-sm">
+                            {error}
+                          </AlertDescription>
                         </Alert>
                       )}
 
-                      <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-800">
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg sm:rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-purple-800">
                         <p className="font-medium mb-1">
                           Community Guidelines:
                         </p>
@@ -555,21 +566,21 @@ export default function LoginPage() {
                       </div>
                     </CardContent>
 
-                    <CardFooter className="pt-2">
+                    <CardFooter className="pt-2 px-4 sm:px-6">
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold shadow-lg transition-all duration-200"
+                        className="w-full h-10 sm:h-12 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold shadow-lg transition-all duration-200 text-sm"
                         disabled={isLoading}
                       >
                         {isLoading ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                             Creating Account...
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
                             Create Account
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                           </div>
                         )}
                       </Button>
@@ -579,17 +590,18 @@ export default function LoginPage() {
               </Tabs>
             </Card>
 
-            <div className="text-center mt-6 space-y-2">
-              <p className="text-sm text-slate-600">
+            {/* Mobile-Optimized Footer Links */}
+            <div className="text-center mt-4 sm:mt-6 space-y-2">
+              <p className="text-xs sm:text-sm text-slate-600">
                 Questions about this project?
               </p>
-              <div className="flex justify-center gap-4 text-sm">
+              <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs sm:text-sm">
                 <button className="text-indigo-600 hover:text-indigo-700 font-medium">
                   <a href="https://github.com/Bumblebig/UniSupport">
                     View on GitHub
                   </a>
                 </button>
-                <span className="text-slate-400">•</span>
+                <span className="text-slate-400 hidden sm:inline">•</span>
                 <button className="text-indigo-600 hover:text-indigo-700 font-medium">
                   <a href="mailto:bumblebig16@gmail.com">Contact Developer</a>
                 </button>
@@ -599,21 +611,21 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-white/70 backdrop-blur-sm border-t border-slate-200/60 mt-16">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between text-sm text-slate-600">
-            <div className="flex items-center gap-6">
+      {/* Mobile-Optimized Footer */}
+      <footer className="bg-white/70 backdrop-blur-sm border-t border-slate-200/60 mt-8 sm:mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 text-xs sm:text-sm text-slate-600">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
               <span>{new Date().getFullYear()} UniSupport AI</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <button className="hover:text-slate-900">Open Source</button>
             </div>
             <div className="flex items-center gap-2">
               <Badge
                 variant="secondary"
-                className="bg-green-100 text-green-700 border-green-200"
+                className="bg-green-100 text-green-700 border-green-200 text-xs"
               >
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mr-1 sm:mr-2"></div>
                 Community Project
               </Badge>
             </div>
