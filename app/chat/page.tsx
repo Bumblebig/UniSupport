@@ -67,69 +67,102 @@ export default function ChatPage() {
     setInput(e.target.value);
   };
 
+  useEffect(() => {
+    const getUserID = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        setUserID(user.uid);
+      }
+    };
+    getUserID();
+  }, []);
+
   // Custom submit handler
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
+    const user = auth.currentUser;
+    if (!user) {
+      console.error("No authenticated user found");
+      return;
+    }
+
+    const currentUserID = user.uid;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
       content: input.trim(),
       timestamp: new Date(),
-      uid: userID,
+      uid: currentUserID,
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch("https://comsis.onrender.com/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage],
-          userId: userID,
+          message: currentInput,
+          user_id: currentUserID,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to get AI response");
+      const text = await res.text();
+      let response;
+      try {
+        response = JSON.parse(text);
+      } catch (error) {
+        console.error("JSON Parse Error:", error);
+        throw new Error("Invalid JSON response");
       }
 
-      const data = await response.json();
+      const botResponse = response?.output;
+
+      if (!botResponse) {
+        console.error("No response from AI");
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Sorry, something went wrong. Please try again.",
+          timestamp: new Date(),
+          uid: currentUserID,
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        return;
+      }
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content:
-          data.content || "I'm here to help with student support issues!",
+        content: botResponse,
         timestamp: new Date(),
-        uid: userID,
+        uid: currentUserID,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error:", error);
 
-      // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
           "Sorry, I'm having trouble responding right now. Please try again later.",
         timestamp: new Date(),
-        uid: userID,
+        uid: auth.currentUser?.uid || "",
       };
 
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       scrollToBottom();
-      console.log("Messages:", messages);
     }
   };
 
@@ -155,8 +188,10 @@ export default function ChatPage() {
     const unsubscribe = onAuthStateChanged(auth, (user: any) => {
       if (user) {
         setIsAuthenticated(true);
+        setUserID(user.uid); // Set userID here too
       } else {
         setIsAuthenticated(false);
+        setUserID(""); // Clear userID
         router.push("/login");
       }
       setAuthLoading(false);
@@ -341,69 +376,71 @@ export default function ChatPage() {
 
       <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-140px)]">
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Categories */}
-            <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Support Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {categories.map((category: any) => {
-                  const Icon = category.icon;
-                  return (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
-                        selectedCategory === category.id
-                          ? `${category.color} shadow-sm`
-                          : "text-slate-600 hover:bg-slate-100"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="text-sm font-medium">
-                        {category.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </CardContent>
-            </Card>
+          {/* Sidebar - conditionally render based on isExpanded */}
+          {isExpanded && (
+            <div className="lg:col-span-1 space-y-6">
+              {/* Categories */}
+              <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Support Categories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {categories.map((category: any) => {
+                    const Icon = category.icon;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
+                          selectedCategory === category.id
+                            ? `${category.color} shadow-sm`
+                            : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="text-sm font-medium">
+                          {category.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </CardContent>
+              </Card>
 
-            {/* Quick Actions */}
-            <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                  <Zap className="h-5 w-5" />
-                  Common Issues
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {filteredActions.map((action: any, index: number) => {
-                  const Icon = action.icon;
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => setInput(action.text)}
-                      className="w-full text-left p-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 flex items-start gap-3"
-                    >
-                      <Icon className="h-4 w-4 mt-0.5 text-slate-500" />
-                      <span className="text-sm leading-relaxed">
-                        {action.text}
-                      </span>
-                    </button>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          </div>
+              {/* Quick Actions */}
+              <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    Common Issues
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {filteredActions.map((action: any, index: number) => {
+                    const Icon = action.icon;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => setInput(action.text)}
+                        className="w-full text-left p-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 flex items-start gap-3"
+                      >
+                        <Icon className="h-4 w-4 mt-0.5 text-slate-500" />
+                        <span className="text-sm leading-relaxed">
+                          {action.text}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-          {/* Main Chat Area */}
-          <div className="lg:col-span-3">
+          {/* Main Chat Area - adjust column span based on sidebar visibility */}
+          <div className={isExpanded ? "lg:col-span-3" : "lg:col-span-4"}>
             <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm h-full flex flex-col">
               {/* Chat Header */}
               <CardHeader className="border-b border-slate-200/60 pb-4">
@@ -428,28 +465,15 @@ export default function ChatPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-slate-600"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
                       onClick={() => setIsExpanded(!isExpanded)}
                       className="text-slate-600"
+                      title={isExpanded ? "Hide sidebar" : "Show sidebar"}
                     >
                       {isExpanded ? (
                         <Minimize2 className="h-4 w-4" />
                       ) : (
                         <Maximize2 className="h-4 w-4" />
                       )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-600"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
