@@ -1,10 +1,10 @@
 "use client";
 
-import { useChat } from "ai/react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,15 +40,98 @@ import {
   Github,
 } from "lucide-react";
 
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp?: Date;
+  uid: string; // Optional user ID for tracking
+}
+
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isExpanded, setIsExpanded] = useState(true);
+  // Custom state to replace useChat
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [userID, setUserID] = useState<string>("");
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Custom input change handler
+  const handleInputChange = (e: any) => {
+    setInput(e.target.value);
+  };
+
+  // Custom submit handler
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date(),
+      uid: userID,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+          userId: userID,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get AI response");
+      }
+
+      const data = await response.json();
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content:
+          data.content || "I'm here to help with student support issues!",
+        timestamp: new Date(),
+        uid: userID,
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error("Error:", error);
+
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content:
+          "Sorry, I'm having trouble responding right now. Please try again later.",
+        timestamp: new Date(),
+        uid: userID,
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      scrollToBottom();
+      console.log("Messages:", messages);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,7 +142,17 @@ export default function ChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const getUserID = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        setUserID(user.uid);
+      }
+    };
+    getUserID();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user: any) => {
       if (user) {
         setIsAuthenticated(true);
       } else {
@@ -156,7 +249,9 @@ export default function ChatPage() {
   const filteredActions =
     selectedCategory === "all"
       ? quickActions
-      : quickActions.filter((action) => action.category === selectedCategory);
+      : quickActions.filter(
+          (action: any) => action.category === selectedCategory
+        );
 
   if (authLoading) {
     return (
@@ -257,7 +352,7 @@ export default function ChatPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {categories.map((category) => {
+                {categories.map((category: any) => {
                   const Icon = category.icon;
                   return (
                     <button
@@ -288,15 +383,12 @@ export default function ChatPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {filteredActions.map((action, index) => {
+                {filteredActions.map((action: any, index: number) => {
                   const Icon = action.icon;
                   return (
                     <button
                       key={index}
-                      onClick={() => {
-                        const event = { target: { value: action.text } } as any;
-                        handleInputChange(event);
-                      }}
+                      onClick={() => setInput(action.text)}
                       className="w-full text-left p-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 flex items-start gap-3"
                     >
                       <Icon className="h-4 w-4 mt-0.5 text-slate-500" />
@@ -308,51 +400,6 @@ export default function ChatPage() {
                 })}
               </CardContent>
             </Card>
-
-            {/* Project Info */}
-            {/* <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                  <Code className="h-5 w-5" />
-                  Project Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">Messages</span>
-                  <Badge
-                    variant="secondary"
-                    className="bg-indigo-100 text-indigo-700"
-                  >
-                    {messages.length}
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">Type</span>
-                  <Badge
-                    variant="secondary"
-                    className="bg-purple-100 text-purple-700"
-                  >
-                    Final Year
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">Status</span>
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-700"
-                  >
-                    Open Source
-                  </Badge>
-                </div>
-                <Separator />
-                <div className="text-xs text-slate-500 space-y-1">
-                  <p>• Community-driven support</p>
-                  <p>• Not officially affiliated</p>
-                  <p>• Made by students, for students</p>
-                </div>
-              </CardContent>
-            </Card> */}
           </div>
 
           {/* Main Chat Area */}
@@ -425,41 +472,38 @@ export default function ChatPage() {
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                      {quickActions.slice(0, 4).map((action, index) => {
-                        const Icon = action.icon;
-                        return (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              const event = {
-                                target: { value: action.text },
-                              } as any;
-                              handleInputChange(event);
-                            }}
-                            className="text-left p-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all duration-200 group"
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="bg-white p-2 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                                <Icon className="h-4 w-4 text-slate-600" />
-                              </div>
-                              <div>
-                                <div className="text-sm font-medium text-slate-800 mb-1">
-                                  Quick Help
+                      {quickActions
+                        .slice(0, 4)
+                        .map((action: any, index: number) => {
+                          const Icon = action.icon;
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => setInput(action.text)}
+                              className="text-left p-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all duration-200 group"
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="bg-white p-2 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                                  <Icon className="h-4 w-4 text-slate-600" />
                                 </div>
-                                <div className="text-sm text-slate-600 leading-relaxed">
-                                  {action.text}
+                                <div>
+                                  <div className="text-sm font-medium text-slate-800 mb-1">
+                                    Quick Help
+                                  </div>
+                                  <div className="text-sm text-slate-600 leading-relaxed">
+                                    {action.text}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </button>
-                        );
-                      })}
+                            </button>
+                          );
+                        })}
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-6">
-                  {messages.map((message, index) => (
+                  {messages.map((message: Message, index: number) => (
                     <div
                       key={message.id}
                       className={`flex gap-4 ${

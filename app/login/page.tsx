@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import Head from "next/head";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -162,10 +161,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      <Head>
+      {/* Remove the Head component */}
+      {/* <Head>
         <title>UniSupport AI</title>
         <meta name="description" content="This is the login page" />
-      </Head>
+      </Head> */}
+      
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
