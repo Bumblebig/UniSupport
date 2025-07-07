@@ -41,6 +41,8 @@ import {
   Coffee,
   Menu,
   X,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -55,6 +57,12 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  // Password visibility states
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const router = useRouter();
 
   const getFirebaseErrorMessage = (code: any) => {
@@ -92,6 +100,10 @@ export default function LoginPage() {
       password: "",
       confirmPassword: "",
     });
+    // Reset password visibility states
+    setShowLoginPassword(false);
+    setShowSignupPassword(false);
+    setShowConfirmPassword(false);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -188,7 +200,11 @@ export default function LoginPage() {
                 <Heart className="h-4 w-4 text-red-500" />
                 <span>Made by Students</span>
               </div>
-              <a href="https://github.com/Bumblebig/UniSupport" target="_blank">
+              <a
+                href="https://github.com/Bumblebig/UniSupport"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div className="flex items-center gap-2 cursor-pointer hover:text-slate-900 transition-colors">
                   <Github className="h-4 w-4" />
                   <span>Open Source</span>
@@ -220,6 +236,7 @@ export default function LoginPage() {
                 <a
                   href="https://github.com/Bumblebig/UniSupport"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <div className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
                     <Github className="h-4 w-4" />
@@ -232,8 +249,8 @@ export default function LoginPage() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
+      {/* Main Content - Add proper top padding to account for sticky header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12 pt-6 sm:pt-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start lg:items-center">
           {/* Left side - Information (Mobile: Shows after form) */}
           <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
@@ -398,20 +415,35 @@ export default function LoginPage() {
                         >
                           Password
                         </Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={loginData.password}
-                          onChange={(e) =>
-                            setLoginData({
-                              ...loginData,
-                              password: e.target.value,
-                            })
-                          }
-                          placeholder="Enter your password"
-                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showLoginPassword ? "text" : "password"}
+                            value={loginData.password}
+                            onChange={(e) =>
+                              setLoginData({
+                                ...loginData,
+                                password: e.target.value,
+                              })
+                            }
+                            placeholder="Enter your password"
+                            className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm pr-10 sm:pr-12"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowLoginPassword(!showLoginPassword)
+                            }
+                            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+                          >
+                            {showLoginPassword ? (
+                              <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                            ) : (
+                              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       {error && (
@@ -504,20 +536,35 @@ export default function LoginPage() {
                         >
                           Password
                         </Label>
-                        <Input
-                          id="signup-password"
-                          type="password"
-                          value={signupData.password}
-                          onChange={(e) =>
-                            setSignupData({
-                              ...signupData,
-                              password: e.target.value,
-                            })
-                          }
-                          placeholder="Create a password"
-                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            id="signup-password"
+                            type={showSignupPassword ? "text" : "password"}
+                            value={signupData.password}
+                            onChange={(e) =>
+                              setSignupData({
+                                ...signupData,
+                                password: e.target.value,
+                              })
+                            }
+                            placeholder="Create a password"
+                            className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm pr-10 sm:pr-12"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowSignupPassword(!showSignupPassword)
+                            }
+                            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+                          >
+                            {showSignupPassword ? (
+                              <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                            ) : (
+                              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       <div className="space-y-1 sm:space-y-2">
@@ -527,20 +574,35 @@ export default function LoginPage() {
                         >
                           Confirm Password
                         </Label>
-                        <Input
-                          id="confirm-password"
-                          type="password"
-                          value={signupData.confirmPassword}
-                          onChange={(e) =>
-                            setSignupData({
-                              ...signupData,
-                              confirmPassword: e.target.value,
-                            })
-                          }
-                          placeholder="Confirm your password"
-                          className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm"
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            id="confirm-password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={signupData.confirmPassword}
+                            onChange={(e) =>
+                              setSignupData({
+                                ...signupData,
+                                confirmPassword: e.target.value,
+                              })
+                            }
+                            placeholder="Confirm your password"
+                            className="h-10 sm:h-12 bg-white/90 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 text-sm pr-10 sm:pr-12"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                            ) : (
+                              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       {error && (

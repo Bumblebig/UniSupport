@@ -82,7 +82,6 @@ export default function ChatPage() {
     const fetchMessages = async () => {
       if (isAuthenticated && userID) {
         try {
-          console.log("Fetching messages for user:", userID);
           const q = query(
             collection(db, "Messages"),
             where("uid", "==", userID),
@@ -90,7 +89,6 @@ export default function ChatPage() {
           );
 
           const snapshot = await getDocs(q);
-          console.log("Found", snapshot.docs.length, "messages");
 
           const msg: Message[] = snapshot.docs.map((doc: any) => ({
             id: doc.id,
@@ -101,7 +99,6 @@ export default function ChatPage() {
           }));
 
           setMessages(msg);
-          console.log("Messages loaded:", msg);
         } catch (error) {
           console.error("Error fetching messages:", error);
         }
@@ -655,23 +652,6 @@ export default function ChatPage() {
                           <span className="sm:hidden">Online</span>
                         </p>
                       </div>
-                    </div>
-
-                    {/* Desktop sidebar toggle - Hidden on mobile */}
-                    <div className="hidden lg:flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="text-slate-600"
-                        title={isExpanded ? "Hide sidebar" : "Show sidebar"}
-                      >
-                        {isExpanded ? (
-                          <Minimize2 className="h-4 w-4" />
-                        ) : (
-                          <Maximize2 className="h-4 w-4" />
-                        )}
-                      </Button>
                     </div>
                   </div>
                 </CardHeader>
