@@ -193,9 +193,7 @@ export default function ChatPage() {
                 <h1 className="text-xl font-bold text-slate-800">
                   UniSupport AI
                 </h1>
-                <p className="text-sm text-slate-600">
-                  Community Assistant • Final Year Project
-                </p>
+                <p className="text-sm text-slate-600">Community Assistant</p>
               </div>
             </div>
 
@@ -222,22 +220,14 @@ export default function ChatPage() {
                   size="sm"
                   className="text-slate-600 hover:text-slate-900"
                 >
-                  <Github className="h-4 w-4" />
+                  <a
+                    href="https://github.com/Bumblebig/UniSupport"
+                    target="_blank"
+                  >
+                    <Github className="h-4 w-4" />
+                  </a>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-slate-600 hover:text-slate-900"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-slate-600 hover:text-slate-900"
-                >
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
+
                 <Separator orientation="vertical" className="h-6" />
                 <Button
                   variant="outline"

@@ -164,7 +164,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       <Head>
         <title>UniSupport AI</title>
-        <meta name="description" content="This is the login oage" />
+        <meta name="description" content="This is the login page" />
       </Head>
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
@@ -188,10 +188,12 @@ export default function LoginPage() {
                 <Heart className="h-4 w-4 text-red-500" />
                 <span>Made by Students</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Github className="h-4 w-4" />
-                <span>Open Source</span>
-              </div>
+              <a href="https://github.com/Bumblebig/UniSupport" target="_blank">
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <Github className="h-4 w-4" />
+                  <span>Open Source</span>
+                </div>
+              </a>
             </div>
           </div>
         </div>
@@ -213,10 +215,10 @@ export default function LoginPage() {
                 </span>
               </h1>
               <p className="text-xl text-slate-600 leading-relaxed">
-                A community-driven platform created by a student, for students.
-                Get instant help with academic IT issues, portal problems, and
-                technical questions - no official affiliation, just peer
-                support.
+                A community-driven platform created by a Unilorin student, for
+                Unilorin students. Get instant help with academic IT issues,
+                portal problems, and technical questions - no official
+                affiliation, just peer support.
               </p>
             </div>
 
@@ -277,9 +279,7 @@ export default function LoginPage() {
               </h3>
               <div className="space-y-2 text-sm text-slate-700">
                 <p>• Created as a final year project to help fellow students</p>
-                <p>
-                  • Not affiliated with any university or official IT department
-                </p>
+                <p>• Not affiliated with the University of Ilorin or COMSIT</p>
                 <p>• Open-source community tool for peer-to-peer support</p>
                 <p>
                   • Designed to complement (not replace) official support
@@ -429,7 +429,7 @@ export default function LoginPage() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            Sign In to Support
+                            Sign In
                             <ArrowRight className="h-4 w-4" />
                           </div>
                         )}
@@ -567,7 +567,7 @@ export default function LoginPage() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            Join the Community
+                            Create Account
                             <ArrowRight className="h-4 w-4" />
                           </div>
                         )}
@@ -584,11 +584,13 @@ export default function LoginPage() {
               </p>
               <div className="flex justify-center gap-4 text-sm">
                 <button className="text-indigo-600 hover:text-indigo-700 font-medium">
-                  View on GitHub
+                  <a href="https://github.com/Bumblebig/UniSupport">
+                    View on GitHub
+                  </a>
                 </button>
                 <span className="text-slate-400">•</span>
                 <button className="text-indigo-600 hover:text-indigo-700 font-medium">
-                  Contact Developer
+                  <a href="mailto:bumblebig16@gmail.com">Contact Developer</a>
                 </button>
               </div>
             </div>
@@ -601,9 +603,7 @@ export default function LoginPage() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between text-sm text-slate-600">
             <div className="flex items-center gap-6">
-              <span>© 2024 UniSupport AI - Final Year Project</span>
-              <span>•</span>
-              <span>Not affiliated with any university</span>
+              <span>{new Date().getFullYear()} UniSupport AI</span>
               <span>•</span>
               <button className="hover:text-slate-900">Open Source</button>
             </div>
