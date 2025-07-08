@@ -559,7 +559,11 @@ export default function ChatPage() {
         <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col min-h-0 p-2 sm:p-3 lg:p-6">
           <div className="flex flex-col lg:grid lg:grid-cols-4 gap-3 sm:gap-6 flex-1 min-h-0">
             {/* Desktop Sidebar - Hidden on mobile */}
-            <div className="hidden lg:block lg:col-span-1 space-y-6 order-1">
+            <div
+              className={`hidden lg:block space-y-6 order-1 ${
+                isExpanded ? "lg:col-span-1" : "lg:hidden"
+              }`}
+            >
               {isExpanded && (
                 <>
                   {/* Categories */}
@@ -623,11 +627,11 @@ export default function ChatPage() {
               )}
             </div>
 
-            {/* Main Chat Area - Full width on mobile, 3/4 on desktop */}
+            {/* Main Chat Area - Full width on mobile, adjusts based on sidebar */}
             <div
-              className={`col-span-full lg:col-span-${
-                isExpanded ? "3" : "4"
-              } flex flex-col min-h-0 order-1`}
+              className={`col-span-full flex flex-col min-h-0 order-1 ${
+                isExpanded ? "lg:col-span-3" : "lg:col-span-4"
+              }`}
             >
               <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm flex flex-col h-[calc(100vh-80px)] sm:h-[calc(100vh-100px)] lg:h-full min-h-0">
                 {/* Chat Header */}
@@ -651,23 +655,6 @@ export default function ChatPage() {
                           <span className="sm:hidden">Online</span>
                         </p>
                       </div>
-                    </div>
-
-                    {/* Desktop sidebar toggle - Hidden on mobile */}
-                    <div className="hidden lg:flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="text-slate-600"
-                        title={isExpanded ? "Hide sidebar" : "Show sidebar"}
-                      >
-                        {isExpanded ? (
-                          <Minimize2 className="h-4 w-4" />
-                        ) : (
-                          <Maximize2 className="h-4 w-4" />
-                        )}
-                      </Button>
                     </div>
                   </div>
                 </CardHeader>
