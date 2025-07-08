@@ -547,21 +547,6 @@ export default function ChatPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="text-slate-600 hidden lg:flex"
-                        title={isExpanded ? "Hide sidebar" : "Show sidebar"}
-                      >
-                        {isExpanded ? (
-                          <Minimize2 className="h-4 w-4" />
-                        ) : (
-                          <Maximize2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
                   </div>
                 </CardHeader>
 
