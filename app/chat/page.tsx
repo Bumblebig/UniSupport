@@ -135,19 +135,16 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(
-        "https://comsupport-672d7929a24b.herokuapp.com/api/chat",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: currentInput,
-            user_id: currentUserID,
-          }),
-        }
-      );
+      const res = await fetch("https://comsis.onrender.com/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          user_id: currentUserID,
+        }),
+      });
 
       const text = await res.text();
       let response;
